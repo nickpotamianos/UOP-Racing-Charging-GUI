@@ -12,7 +12,7 @@ def parse_log_contents(log_contents):
         voltage_readings, temperature_readings = [], []
 
         # Split message to process voltage and temperature separately
-        sections = message.split("1Printing temperatures:")
+        sections = message.split("Printing temperatures:")
         voltage_section = sections[0]
         temperature_section = sections[1] if len(sections) > 1 else ""
 

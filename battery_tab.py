@@ -5,7 +5,7 @@ import serial
 import threading
 import datetime
 import csv
-import os
+from logger import main as log_main
 from open_details_window import open_details_window
 from open_temperature_details_window import open_temperature_details_window
 from serial_interface import SerialInterface
@@ -291,21 +291,40 @@ class BatteryTab:
         self.messages_text.config(state='disabled')
         self.messages_text.see('1.0')
 
-    def save_log_on_close(self):
-        # complete this method
-        pass
+    '''def save_log_on_close(self):
+        # Ensure the 'log' directory exists
+        log_dir = 'log'
+        os.makedirs(log_dir, exist_ok=True)
 
+        # Construct the CSV file name with timestamp
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        file_name = os.path.join(log_dir, f"{timestamp}.csv")
 
+        # Extract messages from the buffer and parse them
+        with self.buffer_lock:
+            messages_to_parse = list(self.message_buffer)  # Make a copy to safely iterate
+        parsed_data = [self.parse_message(message) for message in messages_to_parse]
+
+        # Write the parsed data to the CSV file
+        with open(file_name, 'w', newline='') as csvfile:
+            log_writer = csv.writer(csvfile)
+            for data in parsed_data:
+                log_writer.writerow(data)
+
+        print(f"Data saved to {file_name}")'''
 
     def close_application(self):
-        #skipped for simplicity
         print("inside close")
-        self.save_log_on_close()
+        # Retrieve contents of messages_text
+        log_contents = self.messages_text.get('1.0', 'end-1c')  # Gets all text from the widget
+        # Call the logger's main function with the retrieved contents
+        log_main(log_contents)
+        # Proceed to quit the application
         self.master.quit()
 
     def setup_widgets(self):
         # Segment the layout into sections using frames
-
+        # skipped for simplicity
         charge_frame = ttk.LabelFrame(self.frame, text='Charge')
         energy_frame = ttk.LabelFrame(self.frame, text='General')
         cell_voltages = ttk.LabelFrame(self.frame, text='Cell Voltages')

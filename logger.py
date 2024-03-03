@@ -17,8 +17,8 @@ def parse_log_contents(log_contents):
         temperature_section = sections[1] if len(sections) > 1 else ""
 
         # Extract voltage readings
-        voltage_matches = re.findall(r"(\d+\.\d+|-3\.76-)", voltage_section)
-        voltage_readings = ['3.76' if v == '-3.76-' else v for v in voltage_matches]
+        voltage_matches = re.findall(r"(-?\d+\.\d+-?)", voltage_section)
+        voltage_readings = [v.strip('-') for v in voltage_matches]
 
         # Extract temperature readings, considering 'NaN' and numeric values
         temperature_matches = re.findall(r"NaN|\d+\.\d+", temperature_section)

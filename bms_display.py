@@ -13,18 +13,27 @@ def open_bms_window(master, update_callback, on_close_callback=None):
         "Shutdown Status", "BMS Shutdown", "Is Precharged"
     ]
 
+    # Display the BMS flag on top
+    bms_flag_label = ttk.Label(details_window, text="BMS Flag: ", font=("Arial", 10))
+    bms_flag_label.grid(row=0, column=0, columnspan=3, pady=2)
+
     indicators = {}
 
     for i, desc in enumerate(flags_description):
-        ttk.Label(details_window, text=desc).grid(row=i, column=0, sticky='w')
+        row = i * 2 + 1  # Adjust row number for labels considering separators
+        ttk.Label(details_window, text=desc).grid(row=row, column=0, sticky='w')
         canvas = tk.Canvas(details_window, width=20, height=20)
-        canvas.grid(row=i, column=1, padx=5, pady=2)
-        # Initialize indicators as grey; they will be updated in `update_indicators`
+        canvas.grid(row=row, column=1, padx=5, pady=2)
         indicator = canvas.create_oval(5, 5, 15, 15, fill='grey')
         indicators[desc] = canvas
 
+        # Add a horizontal separator after each row
+        separator = ttk.Separator(details_window, orient='horizontal')
+        separator.grid(row=row + 1, column=0, columnspan=2, sticky='ew', pady=2)
+
     def update_indicators():
         new_bms_flags = update_callback()  # Fetch latest BMS flags using the callback
+        bms_flag_label.config(text="BMS Flag: " + new_bms_flags)  # Update the BMS flag label
         for i, desc in enumerate(flags_description):
             color = 'grey' if len(new_bms_flags) < i + 1 else ('#06b025' if new_bms_flags[i] == '1' else 'red')
             indicators[desc].itemconfig(indicator, fill=color)
@@ -41,4 +50,3 @@ def open_bms_window(master, update_callback, on_close_callback=None):
         details_window.destroy()
 
     details_window.protocol("WM_DELETE_WINDOW", on_close)
-

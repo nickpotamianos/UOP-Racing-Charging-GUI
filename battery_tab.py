@@ -30,6 +30,7 @@ class BatteryTab:
         self.clear_requested = False
         self.details_window_open = False
         self.temperature_details_window_open = False
+        self.bms_display_window_open = False
         self.serial_interface = SerialInterface(
             port="COM4",
             baudrate=115200,
@@ -278,6 +279,21 @@ class BatteryTab:
             print(temperatures)
             open_temperature_details_window(self.master, temperatures, update_callback=lambda: self.latest_parsed_data.get('temperatures', {}), on_close_callback=on_close)
 
+    def open_bms_display(self):
+        if not self.bms_display_window_open:
+            self.bms_display_window_open = True
+
+            def on_close():
+                self.bms_display_window_open = False
+
+            def get_latest_bms_flags():
+                return self.latest_parsed_data.get('bms_flags', '')
+
+            # Import the BMS display module dynamically
+            import bms_display
+            # Open the BMS display window with the callback function
+            bms_display.open_bms_window(self.master, update_callback=lambda: self.latest_parsed_data.get('bms_flags', ''), on_close_callback=on_close)
+
     def apply_baudrate(self):
         # Get the selected baud rate from the Combobox
         selected_baudrate = self.baudrate_combobox.get()
@@ -342,8 +358,8 @@ class BatteryTab:
         ts_on_off_button = ttk.Button(self.console_frame, text="TS on/off")
         ts_on_off_button.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
 
-        reset_error_button = ttk.Button(self.console_frame, text="Reset error")
-        reset_error_button.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
+        self.bms_flag_button = ttk.Button(self.console_frame, text="BMS Flags", command=self.open_bms_display)
+        self.bms_flag_button.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
 
         self.details_button = ttk.Button(self.console_frame, text="Voltages Details", command=self.open_details_window)
         self.details_button.grid(row=0, column=2, padx=5, pady=5, sticky='ew')

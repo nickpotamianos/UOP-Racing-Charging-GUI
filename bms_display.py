@@ -2,9 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 
 
-def open_bms_window(update_callback, on_close_callback=None):
-    window = tk.Tk()
-    window.title("BMS Flags")
+def open_bms_window(master, update_callback, on_close_callback=None):
+    details_window = tk.Toplevel(master)
+    details_window.title("BMS Flags")
 
     flags_description = [
         "System Safe", "Over Voltage", "Under Voltage", "Over Temp Cells", "Under Temp Cells",
@@ -16,8 +16,8 @@ def open_bms_window(update_callback, on_close_callback=None):
     indicators = {}
 
     for i, desc in enumerate(flags_description):
-        ttk.Label(window, text=desc).grid(row=i, column=0, sticky='w')
-        canvas = tk.Canvas(window, width=20, height=20)
+        ttk.Label(details_window, text=desc).grid(row=i, column=0, sticky='w')
+        canvas = tk.Canvas(details_window, width=20, height=20)
         canvas.grid(row=i, column=1, padx=5, pady=2)
         # Initialize indicators as grey; they will be updated in `update_indicators`
         indicator = canvas.create_oval(5, 5, 15, 15, fill='grey')
@@ -31,15 +31,14 @@ def open_bms_window(update_callback, on_close_callback=None):
 
     def schedule_update():
         update_indicators()
-        window.after(1000, schedule_update)  # Schedule the next update
+        details_window.after(1000, schedule_update)  # Schedule the next update
 
     schedule_update()  # Initial call to start the update loop
 
     def on_close():
         if on_close_callback:
             on_close_callback()  # Call the on_close_callback to reset the open window flag
-        window.destroy()
+        details_window.destroy()
 
-    window.protocol("WM_DELETE_WINDOW", on_close)
+    details_window.protocol("WM_DELETE_WINDOW", on_close)
 
-    window.mainloop()

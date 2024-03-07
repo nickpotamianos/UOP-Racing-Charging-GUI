@@ -50,3 +50,5 @@ def open_bms_window(master, update_callback, on_close_callback=None):
         details_window.destroy()
 
     details_window.protocol("WM_DELETE_WINDOW", on_close)
+
+    details_window.minsize(227, 566)

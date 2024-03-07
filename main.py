@@ -6,6 +6,7 @@ if __name__ == "__main__":
     # Create the main window
     root = tk.Tk()
     root.title("UoP Racing CAN Interface")
+    root.geometry("1644x880")
 
     # Create the tab control
 

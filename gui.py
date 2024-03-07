@@ -8,7 +8,7 @@ from tkinter import ttk
 class BatteryGUI(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.geometry('1310x900')
+
         # Build GUI elements
         self.build_gui()
 

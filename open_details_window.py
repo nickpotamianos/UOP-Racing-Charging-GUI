@@ -5,6 +5,7 @@ from tkinter import ttk
 def open_details_window(master, initial_voltages, update_callback=None, on_close_callback=None):
     details_window = tk.Toplevel(master)
     details_window.title("Slave Detailed View")
+    details_window.iconbitmap("formula.ico")
 
     # Store references to the voltage value labels
     voltage_labels = {}
@@ -53,3 +54,5 @@ def open_details_window(master, initial_voltages, update_callback=None, on_close
 
     # Set minsize for the details window if necessary
     details_window.minsize(364, 400)
+
+    return details_window

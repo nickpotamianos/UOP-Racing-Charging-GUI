@@ -5,6 +5,7 @@ from tkinter import ttk
 def open_temperature_details_window(master, initial_temperatures, update_callback=None, on_close_callback=None):
     details_window = tk.Toplevel(master)
     details_window.title("Temperature Detailed View")
+    details_window.iconbitmap("formula.ico")
 
     temperature_labels = {}
 
@@ -44,3 +45,4 @@ def open_temperature_details_window(master, initial_temperatures, update_callbac
 
     # Set minsize for the details window if necessary
     details_window.minsize(303, 294)
+    return details_window

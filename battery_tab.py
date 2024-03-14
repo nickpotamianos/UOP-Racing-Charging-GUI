@@ -39,6 +39,11 @@ class BatteryTab:
             display_message_callback=self.display_message
         )
         self.latest_parsed_data = {}
+        self.info_window_open = False
+        self.details_window_instance = None
+        self.temperature_details_window_instance = None
+        self.bms_display_window_instance = None
+        self.info_window_instance = None
 
     def handle_new_data(self, data):
         # Handle new data received from SerialInterface
@@ -250,49 +255,73 @@ class BatteryTab:
                 log_writer.writerow([message])
 
     def open_details_window(self, use_default_values=False):
-        if not self.details_window_open:
-            self.details_window_open = True
+        if self.details_window_instance is not None and self.details_window_instance.winfo_exists():
+            # If the window exists, bring it to the front
+            self.details_window_instance.lift()
+            return
 
-            def on_close():
-                self.details_window_open = False
+        self.details_window_open = True
 
-            if use_default_values:
-                voltages = {key: 0.0 for key in self.latest_parsed_data.get('voltages', {})}
-            else:
-                voltages = self.latest_parsed_data.get('voltages', {})
+        def on_close():
+            self.details_window_open = False
+            self.details_window_instance = None  # Clear the reference when the window is closed
 
-            open_details_window(self.master, voltages,
-                                update_callback=lambda: self.latest_parsed_data.get('voltages', {}),
-                                on_close_callback=on_close)
+        if use_default_values:
+            voltages = {key: 0.0 for key in self.latest_parsed_data.get('voltages', {})}
+        else:
+            voltages = self.latest_parsed_data.get('voltages', {})
+
+        # Store the window instance when opening the window
+        self.details_window_instance = open_details_window(self.master, voltages,
+                                                           update_callback=lambda: self.latest_parsed_data.get(
+                                                               'voltages', {}),
+                                                           on_close_callback=on_close)
 
     def open_temperature_details_window(self, use_default_values=False):
-        if not self.temperature_details_window_open:
-            self.temperature_details_window_open = True
+        if self.temperature_details_window_instance is not None and self.temperature_details_window_instance.winfo_exists():
+            # If the window exists, bring it to the front
+            self.temperature_details_window_instance.lift()
+            return
 
-            def on_close():
-                self.temperature_details_window_open = False
+        self.temperature_details_window_open = True
 
-            if use_default_values:
-                temperatures = {key: 0.0 for key in self.latest_parsed_data.get('temperatures', {})}
-            else:
-                temperatures = self.latest_parsed_data.get('temperatures', {})
-            print(temperatures)
-            open_temperature_details_window(self.master, temperatures, update_callback=lambda: self.latest_parsed_data.get('temperatures', {}), on_close_callback=on_close)
+        def on_close():
+            self.temperature_details_window_open = False
+            self.temperature_details_window_instance = None  # Clear the reference when the window is closed
+
+        if use_default_values:
+            temperatures = {key: 0.0 for key in self.latest_parsed_data.get('temperatures', {})}
+        else:
+            temperatures = self.latest_parsed_data.get('temperatures', {})
+        print(temperatures)
+
+        # Store the window instance when opening the window
+        self.temperature_details_window_instance = open_temperature_details_window(self.master, temperatures,
+                                                                                   update_callback=lambda: self.latest_parsed_data.get(
+                                                                                       'temperatures', {}),
+                                                                                   on_close_callback=on_close)
 
     def open_bms_display(self):
-        if not self.bms_display_window_open:
-            self.bms_display_window_open = True
+        if self.bms_display_window_instance is not None and self.bms_display_window_instance.winfo_exists():
+            # If the window exists, bring it to the front
+            self.bms_display_window_instance.lift()
+            return
 
-            def on_close():
-                self.bms_display_window_open = False
+        self.bms_display_window_open = True
 
-            def get_latest_bms_flags():
-                return self.latest_parsed_data.get('bms_flags', '')
+        def on_close():
+            self.bms_display_window_open = False
+            self.bms_display_window_instance = None  # Clear the reference when the window is closed
 
-            # Import the BMS display module dynamically
-            import bms_display
-            # Open the BMS display window with the callback function
-            bms_display.open_bms_window(self.master, update_callback=lambda: self.latest_parsed_data.get('bms_flags', ''), on_close_callback=on_close)
+        def get_latest_bms_flags():
+            return self.latest_parsed_data.get('bms_flags', '')
+
+        # Import the BMS display module dynamically
+        import bms_display
+        # Open the BMS display window with the callback function and store the reference
+        self.bms_display_window_instance = bms_display.open_bms_window(self.master,
+                                                                       update_callback=lambda: get_latest_bms_flags(),
+                                                                       on_close_callback=on_close)
 
     def apply_baudrate(self):
         # Get the selected baud rate from the Combobox
@@ -307,27 +336,49 @@ class BatteryTab:
         self.messages_text.config(state='disabled')
         self.messages_text.see('1.0')
 
-    '''def save_log_on_close(self):
-        # Ensure the 'log' directory exists
-        log_dir = 'log'
-        os.makedirs(log_dir, exist_ok=True)
+    def open_info_window(self):
+        if self.info_window_instance is not None and self.info_window_instance.winfo_exists():
+            # Window is already open, bring it to front
+            self.info_window_instance.lift()
+            return
 
-        # Construct the CSV file name with timestamp
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        file_name = os.path.join(log_dir, f"{timestamp}.csv")
+        self.info_window_open = True
+        info_window = tk.Toplevel(self.master)
+        info_window.title("Application Information")
+        info_window.iconbitmap("formula.ico")
+        info_window.geometry("400x200")  # Adjust the size to fit the license text
 
-        # Extract messages from the buffer and parse them
-        with self.buffer_lock:
-            messages_to_parse = list(self.message_buffer)  # Make a copy to safely iterate
-        parsed_data = [self.parse_message(message) for message in messages_to_parse]
+        # Information label
+        tk.Label(info_window, text="Developed by Nick Potamianos,\nFor the UoP Racing Team",
+                 font=("Arial", 10), justify=tk.LEFT).pack(pady=10)
 
-        # Write the parsed data to the CSV file
-        with open(file_name, 'w', newline='') as csvfile:
-            log_writer = csv.writer(csvfile)
-            for data in parsed_data:
-                log_writer.writerow(data)
+        # License label
+        license_text = ("Copyright (c) 2024 Nick Potamianos. All rights reserved.\n\n"
+                        "Permission is granted to use and distribute this software with attribution\n"
+                        "to the author and the UoP Racing Team, provided that this copyright notice\n"
+                        "and permission notice appear in all copies and derivatives.\n\n"
+                        "This software is provided 'as is' with no warranties, express or implied.")
+        tk.Label(info_window, text=license_text, font=("Arial", 8), justify=tk.LEFT).pack(pady=5)
 
-        print(f"Data saved to {file_name}")'''
+        # GitHub link
+        link = tk.Label(info_window, text="GitHub Profile", fg="blue", cursor="hand2")
+        link.pack()
+        link.bind("<Button-1>", lambda e: self.open_github("https://github.com/nickpotamianos"))
+
+        # Window close handling
+        def on_close():
+            self.info_window_open = False
+            self.info_window_instance = None  # Clear the reference when the window is closed
+            info_window.destroy()
+
+        info_window.protocol("WM_DELETE_WINDOW", on_close)
+
+        # Store the window instance
+        self.info_window_instance = info_window
+
+    def open_github(self, url):
+        import webbrowser
+        webbrowser.open(url)
 
     def close_application(self):
         print("inside close")
@@ -355,19 +406,19 @@ class BatteryTab:
         self.console_frame.grid(row=0, column=0, columnspan=2, sticky='ew', padx=5, pady=5)
 
         # Add widgets to the console frame
-        ts_on_off_button = ttk.Button(self.console_frame, text="TS on/off")
-        ts_on_off_button.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+        info_button = ttk.Button(self.console_frame, text="Info", command=self.open_info_window)
+        info_button.grid(row=0, column=3, padx=5, pady=5, sticky='ew')
 
         self.bms_flag_button = ttk.Button(self.console_frame, text="BMS Flags", command=self.open_bms_display)
-        self.bms_flag_button.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
+        self.bms_flag_button.grid(row=0, column=2, padx=5, pady=5, sticky='ew')
 
         self.details_button = ttk.Button(self.console_frame, text="Voltages Details", command=self.open_details_window)
-        self.details_button.grid(row=0, column=2, padx=5, pady=5, sticky='ew')
+        self.details_button.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
 
         # Add the "Temperature Details" button
         self.temperature_details_button = ttk.Button(self.console_frame, text="Temperature Details",
                                                       command=lambda: self.open_temperature_details_window())
-        self.temperature_details_button.grid(row=0, column=3, padx=5, pady=5, sticky='ew')
+        self.temperature_details_button.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
 
         # Setup for Battery Online indicator
         battery_online_label = ttk.Label(self.console_frame, text="Battery online:")

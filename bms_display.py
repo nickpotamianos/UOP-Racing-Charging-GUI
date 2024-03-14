@@ -5,6 +5,7 @@ from tkinter import ttk
 def open_bms_window(master, update_callback, on_close_callback=None):
     details_window = tk.Toplevel(master)
     details_window.title("BMS Flags")
+    details_window.iconbitmap("formula.ico")
 
     flags_description = [
         "System Safe", "Over Voltage", "Under Voltage", "Over Temp Cells", "Under Temp Cells",
@@ -52,3 +53,5 @@ def open_bms_window(master, update_callback, on_close_callback=None):
     details_window.protocol("WM_DELETE_WINDOW", on_close)
 
     details_window.minsize(227, 566)
+
+    return details_window

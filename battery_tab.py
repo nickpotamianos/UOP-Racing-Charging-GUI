@@ -390,13 +390,6 @@ class BatteryTab:
         self.master.quit()
 
     def setup_widgets(self):
-        # Segment the layout into sections using frames
-        # skipped for simplicity
-        charge_frame = ttk.LabelFrame(self.frame, text='Charge')
-        energy_frame = ttk.LabelFrame(self.frame, text='General')
-        cell_voltages = ttk.LabelFrame(self.frame, text='Cell Voltages')
-        cell_temperatures = ttk.LabelFrame(self.frame, text='Cell Temperatures')
-        ivt_data = ttk.LabelFrame(self.frame, text='IVT Data')
 
         # ... (create frames for each section)
         self.frame.pack(fill="both", expand=True)

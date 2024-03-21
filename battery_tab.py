@@ -345,7 +345,7 @@ class BatteryTab:
         self.info_window_open = True
         info_window = tk.Toplevel(self.master)
         info_window.title("Application Information")
-        info_window.iconbitmap("formula.ico")
+        # info_window.iconbitmap("formula.ico")
         info_window.geometry("400x200")  # Adjust the size to fit the license text
 
         # Information label

@@ -7,7 +7,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.title("UoP Racing CAN Interface")
     root.geometry("1644x880")
-    root.iconbitmap("formula.ico")
+    #root.iconbitmap("formula.ico")
 
     # Create the tab control
 

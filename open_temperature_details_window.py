@@ -5,7 +5,7 @@ from tkinter import ttk
 def open_temperature_details_window(master, initial_temperatures, update_callback=None, on_close_callback=None):
     details_window = tk.Toplevel(master)
     details_window.title("Temperature Detailed View")
-    details_window.iconbitmap("formula.ico")
+#   details_window.iconbitmap("formula.ico")
 
     temperature_labels = {}
 

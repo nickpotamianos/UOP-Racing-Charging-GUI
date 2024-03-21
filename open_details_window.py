@@ -28,10 +28,24 @@ def open_details_window(master, initial_voltages, update_callback=None, on_close
     # Function to update voltage labels
     def update_voltages():
         new_voltages = update_callback() if update_callback else initial_voltages
-        for slave_key, labels in voltage_labels.items():
-            for cell, label in enumerate(labels):
-                cell_voltage = new_voltages.get(slave_key, [0.0] * 12)[cell]
-                label.config(text=f"{cell_voltage:.2f} V")
+        flat_voltages = [v for slave_voltages in new_voltages.values() for v in slave_voltages]
+        if flat_voltages:  # Check if flat_voltages is not empty
+            min_voltage = min(flat_voltages)
+            max_voltage = max(flat_voltages)
+
+            for slave_key, labels in voltage_labels.items():
+                slave_voltages = new_voltages.get(slave_key, [0.0] * 12)
+                for cell, label in enumerate(labels):
+                    cell_voltage = slave_voltages[cell]
+                    label.config(text=f"{cell_voltage:.2f} V")
+
+                    # Update label color based on voltage
+                    if cell_voltage == min_voltage:
+                        label.config(foreground='light green')
+                    elif cell_voltage == max_voltage:
+                        label.config(foreground='red')
+                    else:
+                        label.config(foreground='black')
 
     # Initial call to update voltages
     update_voltages()

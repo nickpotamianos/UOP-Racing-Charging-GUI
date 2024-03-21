@@ -24,11 +24,26 @@ def open_temperature_details_window(master, initial_temperatures, update_callbac
 
     def update_temperatures():
         new_temperatures = update_callback() if update_callback else initial_temperatures
-        for slave_key, labels in temperature_labels.items():
-            for temp_index, label in enumerate(labels):
-                temp_value = new_temperatures.get(slave_key, [0.0] * 5)[temp_index]
-                temp_value_display = f"{temp_value:.2f} °C" if temp_value is not None else "NaN"
-                label.config(text=temp_value_display)
+        flat_temperatures = [t for slave_temps in new_temperatures.values() for t in slave_temps if t is not None]
+        if flat_temperatures:  # Check if flat_temperatures is not empty
+            min_temp = min(flat_temperatures)
+            max_temp = max(flat_temperatures)
+
+            for slave_key, labels in temperature_labels.items():
+                slave_temps = new_temperatures.get(slave_key, [None] * 5)
+                for temp_index, label in enumerate(labels):
+                    temp_value = slave_temps[temp_index]
+                    temp_value_display = f"{temp_value:.2f} °C" if temp_value is not None else "NaN"
+                    label.config(text=temp_value_display)
+
+                    # Update label color based on temperature
+                    if temp_value is not None:
+                        if temp_value == min_temp:
+                            label.config(foreground='light green')
+                        elif temp_value == max_temp:
+                            label.config(foreground='red')
+                        else:
+                            label.config(foreground='black')
 
     def schedule_update():
         update_temperatures()

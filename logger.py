@@ -38,13 +38,18 @@ def save_to_csv(data):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     filename = f"{directory}/log_{timestamp}.csv"
 
-    # Generate headers for cells and thermistors
-    headers = [f"Cell #{i+1}" for i in range(144)] + [f"Therm #{i+1}" for i in range(60)]
+    # Generate headers for cells and thermistors, including 'vtime' at the start
+    headers = ['vtime'] + [f"Cell #{i + 1}" for i in range(144)] + [f"Therm #{i + 1}" for i in range(60)]
 
     with open(filename, 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(headers)
-        writer.writerows(data)
+
+        # Write data rows, prepending vtime value starting at 1
+        vtime = 1
+        for row in data:
+            writer.writerow([vtime] + row)
+            vtime += 1
 
     print(f"Data logged successfully to {filename}")
 

@@ -185,34 +185,6 @@ class BatteryTab:
         # Schedule the next update, ensuring parsed_data is updated if needed
         self.master.after(1000, lambda: self.update_indicators(self.latest_parsed_data))
 
-    def build_device_selector(self):
-        # Create device selection frame and other widgets
-        device_frame = ttk.LabelFrame(self.frame, text='Device Selection')
-        device_frame.grid(row=3, column=0, padx=5, pady=5, sticky='ew')
-
-        # Combobox to list available serial ports
-        self.device_combobox = ttk.Combobox(device_frame)
-        self.device_combobox.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
-
-        # Button to refresh the list of available serial ports
-        refresh_button = ttk.Button(device_frame, text="Refresh", command=self.refresh_serial_ports)
-        refresh_button.grid(row=0, column=1, padx=5, pady=5)
-
-        # Button to open the selected serial port
-        open_button = ttk.Button(device_frame, text="Open", command=self.open_port)
-        open_button.grid(row=0, column=2, padx=5, pady=5)
-
-        # Button to close the selected serial port
-        close_button = ttk.Button(device_frame, text="Close", command=self.close_port)
-        close_button.grid(row=0, column=3, padx=5, pady=5)
-
-        # Button to extract log from the serial port
-        extract_log_button = ttk.Button(device_frame, text="Extract Log", command=self.extract_log)
-        extract_log_button.grid(row=0, column=4, padx=5, pady=5)
-
-        # Initially refresh the serial ports list
-        self.refresh_serial_ports()
-
     def refresh_serial_ports(self):
         # Refresh the list of serial ports
         ports = serial.tools.list_ports.comports()
@@ -389,8 +361,35 @@ class BatteryTab:
         # Proceed to quit the application
         self.master.quit()
 
-    def setup_widgets(self):
+    def build_device_selector(self):
+        # Create device selection frame and other widgets
+        device_frame = ttk.LabelFrame(self.frame, text='Device Selection')
+        device_frame.grid(row=3, column=0, columnspan=3, sticky='nsew', padx=5, pady=5)
 
+        # Combobox to list available serial ports
+        self.device_combobox = ttk.Combobox(device_frame)
+        self.device_combobox.grid(row=0, column=0, padx=5, pady=5, sticky='ew')
+
+        # Button to refresh the list of available serial ports
+        refresh_button = ttk.Button(device_frame, text="Refresh", command=self.refresh_serial_ports)
+        refresh_button.grid(row=0, column=1, padx=5, pady=5)
+
+        # Button to open the selected serial port
+        open_button = ttk.Button(device_frame, text="Open", command=self.open_port)
+        open_button.grid(row=0, column=2, padx=5, pady=5)
+
+        # Button to close the selected serial port
+        close_button = ttk.Button(device_frame, text="Close", command=self.close_port)
+        close_button.grid(row=0, column=3, padx=5, pady=5)
+
+        # Button to extract log from the serial port
+        extract_log_button = ttk.Button(device_frame, text="Extract Log", command=self.extract_log)
+        extract_log_button.grid(row=0, column=4, padx=5, pady=5)
+
+        # Initially refresh the serial ports list
+        self.refresh_serial_ports()
+
+    def setup_widgets(self):
         # ... (create frames for each section)
         self.frame.pack(fill="both", expand=True)
 
@@ -568,7 +567,7 @@ class BatteryTab:
 
         # Create a frame for baud rate selection
         baudrate_frame = ttk.LabelFrame(self.frame, text='Baud Rate')
-        baudrate_frame.grid(row=3, column=1, padx=5, pady=5, sticky='ew')
+        baudrate_frame.grid(row=3, column=4, columnspan=3, padx=5, pady=5, sticky='ew')
 
         # Create a label for the baud rate dropdown
         baudrate_label = ttk.Label(baudrate_frame, text="Baud Rate:")

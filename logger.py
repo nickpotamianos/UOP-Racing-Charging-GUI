@@ -32,26 +32,39 @@ def parse_log_contents(log_contents):
 
 def save_to_csv(data):
     directory = "logs"
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-
-    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    filename = f"{directory}/log_{timestamp}.csv"
 
     # Generate headers for cells and thermistors, including 'vtime' at the start
     headers = ['vtime'] + [f"Cell #{i + 1}" for i in range(144)] + [f"Therm #{i + 1}" for i in range(60)]
 
-    with open(filename, 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(headers)
+    # Check if data is not empty and contains non-empty rows
+    data_exists = any(data)  # This checks if there's at least one non-empty row in data
 
-        # Write data rows, prepending vtime value starting at 1
-        vtime = 1
-        for row in data:
-            writer.writerow([vtime] + row)
-            vtime += 1
+    if data_exists:
+        # Ensure the directory exists only if there's data to write
+        if not os.path.exists(directory):
+            os.makedirs(directory)
 
-    print(f"Data logged successfully to {filename}")
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = f"{directory}/log_{timestamp}.csv"
+
+        with open(filename, 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(headers)
+
+            vtime = 1
+            for row in data:
+                if row:  # Check if the row is not empty
+                    writer.writerow([vtime] + row)
+                    vtime += 1
+
+            if vtime == 1:  # Checks if no data row was actually written
+                # No data rows written, so remove the created file
+                os.remove(filename)
+                print("No data rows were written, log file not created.")
+            else:
+                print(f"Data logged successfully to {filename}")
+    else:
+        print("No data to log, file not created.")
 
 
 def main(log_contents):
